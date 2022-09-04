@@ -11,7 +11,10 @@ test: ## Run pytest
 test:
 	pytest . -p no:logging -p no:warnings
 
+docker-redis:  ## Run redis
+docker-redis:
+	docker-compose -f docker/redis.yml up -d
+
 run-api:  ## Run api
 run-api:
-	poetry shell
-	uvicorn src.main:app --reload
+	poetry run uvicorn src.main:app --reload

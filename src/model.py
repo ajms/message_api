@@ -1,5 +1,6 @@
-from pydantic import BaseModel
-from uuid import uuid4, UUID
+from uuid import UUID
+
+from pydantic import BaseModel, Field
 
 
 class Tokens(BaseModel):
@@ -7,8 +8,8 @@ class Tokens(BaseModel):
 
 
 class Message(BaseModel):
-    message: str
-    token: UUID
+    message: str = Field("This is a good day.")
+    token: str
 
 
 class Messages(BaseModel):
