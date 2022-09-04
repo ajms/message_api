@@ -10,3 +10,8 @@ help:
 test: ## Run pytest
 test:
 	pytest . -p no:logging -p no:warnings
+
+run-api:  ## Run api
+run-api:
+	poetry shell
+	uvicorn src.main:app --reload
