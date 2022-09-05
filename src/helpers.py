@@ -1,7 +1,6 @@
 from functools import lru_cache
 from uuid import UUID, uuid4
 
-from fastapi import HTTPException
 from pydantic import BaseSettings
 from redis import Redis
 
@@ -10,6 +9,14 @@ class Settings(BaseSettings):
     REDIS_HOST: str = "0.0.0.0"
     REDIS_PORT: int = 6379
     ACCESS_TOKEN: str = ""
+    JWT_SECRET_KEY = ""
+    ALGORITHM = "HS256"
+    ACCESS_TOKEN_EXPIRE_MINUTES = 30
+    ADMIN_PASSWORD = ""
+
+    class Config:
+        env_file = ".env"
+        env_file_encoding = "utf-8"
 
 
 @lru_cache
@@ -42,17 +49,6 @@ def generate_tokens(num: int):
     return valid_tokens[:num]
 
 
-def check_token(token):
-    r = get_redis()
-    used_flag = r.get(f"token_{token}")
-    if used_flag is None:
-        return HTTPException(401, "token does not exist")
-    elif used_flag == b"1":
-        return HTTPException(401, "token has been used")
-    else:
-        return None
-
-
 def delete_keys():
     r = get_redis()
     for key in r.scan_iter("*"):
@@ -60,7 +56,7 @@ def delete_keys():
 
 
 if __name__ == "__main__":
-    # delete_keys()
+    delete_keys()
     r = get_redis()
     print(generate_tokens(10))
 
