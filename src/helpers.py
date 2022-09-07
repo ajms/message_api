@@ -1,3 +1,4 @@
+import re
 from functools import lru_cache
 from uuid import UUID, uuid4
 
@@ -34,19 +35,21 @@ def get_redis():
     )
 
 
-def generate_tokens(num: int):
+def generate_secrets(num: int):
     r = get_redis()
-    valid_tokens = []
+    valid_secrets = []
     for key in r.scan_iter("token_*"):
         used_flag = r.get(key)
         if used_flag == b"1":
             continue
-        valid_tokens.append(UUID(key[6:].decode("utf-8")))
-    for i in range(num - len(valid_tokens), 0, -1):
+        m = re.match(r"token_([a-z-0-9]{36})", key.decode("utf-8"))
+        assert m is not None, f"{key.decode('utf-8')=}"
+        valid_secrets.append(UUID(m.group(1)))
+    for i in range(num - len(valid_secrets), 0, -1):
         token = uuid4()
         r.set(f"token_{token}", 0)
-        valid_tokens.append(token)
-    return valid_tokens[:num]
+        valid_secrets.append(token)
+    return valid_secrets[:num]
 
 
 def delete_keys():
@@ -56,9 +59,9 @@ def delete_keys():
 
 
 if __name__ == "__main__":
-    delete_keys()
+    # delete_keys()
     r = get_redis()
-    print(generate_tokens(10))
+    print(generate_secrets(10))
 
     for key in r.scan_iter("*"):
         print(f"{key}, {r.get(key)}")

@@ -6,27 +6,27 @@ from jose import JWTError, jwt
 from passlib.context import CryptContext
 
 from src.helpers import get_redis, get_settings
-from src.model import AccessToken, TokenData, User
+from src.model import SimpleUser, TokenData, User
 
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="token")
 
 
-def verify_password(plain_password, hashed_password):
+def verify_password(plain_password, hashed_password) -> bool:
     return pwd_context.verify(plain_password, hashed_password)
 
 
-def get_password_hash(password):
+def get_password_hash(password) -> str:
     return pwd_context.hash(password)
 
 
-def authenticate_user(user: str, password: str | None):
+def authenticate_user(user: str, password: str | None) -> SimpleUser | bool:
     if user != "admin":
         r = get_redis()
         used_flag = r.get(f"token_{user}")
         if not used_flag:
             return False
-        return AccessToken(user=user, disabled=used_flag)
+        return SimpleUser(user=user, disabled=used_flag)
     else:
         cfg = get_settings()
         if not verify_password(password, cfg.ADMIN_PASSWORD):
@@ -34,7 +34,7 @@ def authenticate_user(user: str, password: str | None):
         return User(user=user, disabled=0, hashed_password=cfg.ADMIN_PASSWORD)
 
 
-def create_access_token(data: dict, expires_delta: timedelta | None = None):
+def create_access_token(data: dict, expires_delta: timedelta | None = None) -> str:
     cfg = get_settings()
     to_encode = data.copy()
     if expires_delta:
@@ -50,7 +50,7 @@ def create_access_token(data: dict, expires_delta: timedelta | None = None):
     return encoded_jwt
 
 
-async def check_authentication_token(token: str = Depends(oauth2_scheme)):
+async def check_authentication_token(token: str = Depends(oauth2_scheme)) -> TokenData:
     cfg = get_settings()
     credentials_exception = HTTPException(
         status_code=status.HTTP_401_UNAUTHORIZED,

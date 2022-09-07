@@ -1,10 +1,11 @@
+import json
 from datetime import datetime, timedelta
 
 from fastapi import Depends, FastAPI, HTTPException, Query, status
 from fastapi.security import OAuth2PasswordRequestForm
 
-from src.helpers import generate_tokens, get_redis, get_settings
-from src.model import AccessTokens, Message, Messages, Token
+from src.helpers import generate_secrets, get_redis, get_settings
+from src.model import Message, Messages, OneTimeSecrets, Token, TokenData
 from src.security import (
     authenticate_user,
     check_authentication_token,
@@ -29,7 +30,7 @@ async def login_for_access_token(
     form_data: OAuth2PasswordRequestForm = Depends(),
     cfg=Depends(get_settings),
     r=Depends(get_redis),
-):
+) -> Token:
     user = authenticate_user(form_data.username, form_data.password)
     if not user:
         raise HTTPException(
@@ -47,14 +48,16 @@ async def login_for_access_token(
 
 
 @app.get(
-    "/tokens",
-    response_model=AccessTokens,
-    description="Get tokens for posting messages",
+    "/secrets",
+    response_model=OneTimeSecrets,
+    description="Get secrets for posting messages",
 )
-async def tokens(token_data=Depends(check_authentication_token)):
+async def secrets(
+    num_secrets: int = Query(default=2), token_data=Depends(check_authentication_token)
+) -> OneTimeSecrets:
     if token_data.user != "admin":
         raise HTTPException(401, "Not authorized to view this endpoint")
-    return AccessTokens(tokens=generate_tokens(2))
+    return OneTimeSecrets(secrets=generate_secrets(num_secrets))
 
 
 @app.post(
@@ -64,19 +67,19 @@ async def tokens(token_data=Depends(check_authentication_token)):
 )
 async def message(
     body: Message,
-    token_data=Depends(check_authentication_token),
+    token_data: TokenData = Depends(check_authentication_token),
     r=Depends(get_redis),
-):
+) -> Message:
     r = get_redis()
     used_flag = r.get(f"token_{token_data.user}")
     if used_flag is None:
-        raise HTTPException(401, "No token provided")
+        raise HTTPException(401, "Invalid token")
     elif used_flag == b"2":
         raise HTTPException(401, "Token is already used")
     else:
-        r.set(f"message_{body.name}", body.message)
+        message = Message(text=body.text, name=body.name, timestamp=datetime.now())
+        r.set(f"message_{body.name}", json.dumps(message))
         r.set(f"token_{token_data.user}", 2)
-    body.timestamp = datetime.now()
     return body
 
 
@@ -88,10 +91,11 @@ async def message(
 async def messages(
     num_messages: int = Query(default=10, title="Number of messages"),
     r=Depends(get_redis),
-):
+) -> Messages:
     messages = []
     for key in r.scan_iter("message_*"):
+        message = json.loads(r.get(key))
         messages.append(
-            Message(token=key[8:], message=r.get(key).decode("utf-8")),
+            Message(**message),
         )
     return messages[-num_messages:]

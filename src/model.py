@@ -4,13 +4,13 @@ from uuid import UUID
 from pydantic import BaseModel, Field
 
 
-class AccessTokens(BaseModel):
-    tokens: list[UUID]
+class OneTimeSecrets(BaseModel):
+    secrets: list[UUID]
 
 
 class Message(BaseModel):
-    message: str = Field(example="This is a good day.")
-    name: str
+    text: str = Field(example="This is a good day.")
+    name: str | None = None
     timestamp: datetime | None = None
 
 
@@ -27,10 +27,10 @@ class TokenData(BaseModel):
     user: str | None = None
 
 
-class AccessToken(BaseModel):
+class SimpleUser(BaseModel):
     user: str
     disabled: bool | None = None
 
 
-class User(AccessToken):
+class User(SimpleUser):
     hashed_password: str
