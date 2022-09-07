@@ -78,7 +78,7 @@ async def message(
         raise HTTPException(401, "Token is already used")
     else:
         message = Message(text=body.text, name=body.name, timestamp=datetime.now())
-        r.set(f"message_{body.name}", json.dumps(message))
+        r.set(f"message_{body.name}", message.json())
         r.set(f"token_{token_data.user}", 2)
     return body
 
@@ -95,7 +95,5 @@ async def messages(
     messages = []
     for key in r.scan_iter("message_*"):
         message = json.loads(r.get(key))
-        messages.append(
-            Message(**message),
-        )
-    return messages[-num_messages:]
+        messages.append(Message(**message))
+    return Messages(messages=messages[-num_messages:])

@@ -5,7 +5,7 @@ description = "api for receiving and delivering messages"
 authors = ["Albert Schulz <albert.schulz@posteo.de>"]
 license = "GPL"
 readme = "README.md"
-packages = [{include = "message_api"}]
+packages = [{include = "src"}]
 
 [tool.poetry.dependencies]
 python = "^3.10"

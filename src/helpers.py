@@ -59,7 +59,7 @@ def delete_keys():
 
 
 if __name__ == "__main__":
-    # delete_keys()
+    delete_keys()
     r = get_redis()
     print(generate_secrets(10))
 
