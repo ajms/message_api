@@ -43,7 +43,6 @@ async def login_for_access_token(
     )
     if form_data.username != "admin":
         r.set(f"token_{form_data.username}", 1)
-    print(f"{form_data.username=}, {access_token=}")
     return {"access_token": access_token, "token_type": "bearer"}
 
 
