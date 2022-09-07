@@ -11,6 +11,10 @@ test: ## Run pytest
 test:
 	pytest . -p no:logging -p no:warnings
 
+generate-admin-pw:  ## Generate a hashed admin pw for local exectution
+generate-admin-pw:
+	python -m src.security
+
 docker-redis:  ## Run redis
 docker-redis:
 	docker-compose -f docker/redis.yml up -d
