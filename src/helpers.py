@@ -40,7 +40,7 @@ def generate_secrets(num: int):
     valid_secrets = []
     for key in r.scan_iter("token_*"):
         used_flag = r.get(key)
-        if used_flag == b"1":
+        if used_flag != b"0":
             continue
         m = re.match(r"token_([a-z-0-9]{36})", key.decode("utf-8"))
         assert m is not None, f"{key.decode('utf-8')=}"
