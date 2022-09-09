@@ -20,7 +20,7 @@ def get_password_hash(password) -> str:
     return pwd_context.hash(password)
 
 
-def authenticate_user(user: str, password: str | None) -> SimpleUser | bool:
+def authenticate_user(user: str, password: str | None = None) -> SimpleUser | bool:
     if user != "admin":
         r = get_redis()
         used_flag = r.get(f"token_{user}")
