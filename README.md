@@ -1,10 +1,9 @@
 # message-api
 message-api is an api for collecting messages from an audience.
 
-Messages can be posted using a token as authorization.
-The tokens can be acquired through the /tokens endpoint.
+Messages can be posted using a secret as authorization.
+The tokens can be acquired through the /secrets endpoint.
 
-See the openapi-definition in openapi.json.
 
 ## getting started
 Install python 3.10 and poetry and docker-compose.
@@ -45,7 +44,27 @@ make docker-redis
 ```
 to start redis. This holds the messages and tokens.
 
-*Remark* The docker-compose definition does not include an access token for redis. When deploying this api, an access token should be set for the redis instance. The api will read the environment variable ACCESS_TOKEN (or ACCESS_TOKEN directly from .env).
+Run
+```bash
+make run-api
+```
+to start the api.
+
+## run api with docker-compose
+Run
+```bash
+make build-base-image
+make build-message-api
+```
+to build the base image with dependencies and build the message api container.
+
+Run
+```bash
+make docker-run
+```
+to start the api and redis.
+
+*Remark*: The docker-compose definition does not include an access token for redis. When deploying this api, an access token should be set for the redis instance. The api will read the environment variable ACCESS_TOKEN (or ACCESS_TOKEN directly from .env).
 
 Run
 ```bash
