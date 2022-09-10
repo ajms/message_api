@@ -1,0 +1,16 @@
+version: '3.8'
+services:
+  redis:
+    image: redis:7.0.4-alpine
+    command: redis-server --save 20 1 --loglevel warning
+    volumes:
+      - redis:/data
+  message-api:
+    image: message-api:v0.1.0
+    ports:
+      - 8000:8000
+    environment:
+      - REDIS_HOST=redis
+volumes:
+  redis:
+    driver: local
