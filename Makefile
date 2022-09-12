@@ -34,7 +34,7 @@ build-base-image:  ## Build base image with requirements
 
 build-message-api:  ## Build message-api docker
 build-message-api:
-	docker build . -f docker/Dockerfile -t message-api:v0.1.0
+	docker build . -f docker/Dockerfile -t message-api:v0.1.0 --build-arg messagebase:v0.1.0
 
 docker-run:  ## Run docker-compose
 docker-run:

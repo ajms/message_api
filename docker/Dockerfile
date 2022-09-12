@@ -1,4 +1,6 @@
-FROM messagebase:v0.1.0
+ARG BASEIMAGE
+
+FROM ${BASEIMAGE}
 
 WORKDIR /app
 COPY . .
