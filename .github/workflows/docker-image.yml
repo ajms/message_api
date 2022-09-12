@@ -1,0 +1,27 @@
+name: Docker Image CI
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+
+jobs:
+
+  build:
+
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Install doctl
+      uses: digitalocean/action-doctl@v2
+      with:
+        token: ${{ secrets.DIGITALOCEAN_ACCESS_TOKEN }}
+        
+    - uses: actions/checkout@v3
+    - name: Build the Docker base image
+      run: |
+        docker build . --file docker/Dockerfile.base --tag registry.digitalocean.com/dwe/message-api-base:$GITHUB_SHA
+        docker push registry.digitalocean.com/dwe/message-api-base:$GITHUB_SHA
+        docker build . --file docker/Dockerfile --tag registry.digitalocean.com/dwe/message-api:$GITHUB_SHA --build-arg message-api-base:$GITHUB_SHA
+        docker push registry.digitalocean.com/dwe/message-api:$GITHUB_SHA
