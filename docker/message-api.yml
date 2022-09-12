@@ -6,11 +6,13 @@ services:
     volumes:
       - redis:/data
   message-api:
-    image: message-api:v0.1.0
+    image: $IMAGE
     ports:
       - 8000:8000
     environment:
       - REDIS_HOST=redis
+      - ADMIN_PASSWORD=$ADMIN_PASSWORD
+      - JWT_SECRET_KEY=$JWT_SECRET_KEY
 volumes:
   redis:
     driver: local

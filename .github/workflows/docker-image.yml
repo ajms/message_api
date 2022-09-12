@@ -13,6 +13,15 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
+
+    - name: Checkout main
+      uses: actions/checkout@v2
+
+    - name: Build container image
+      run:  |
+        docker build . -f docker/Dockerfile.base -t message-api-base:$(echo $GITHUB_SHA | head -c7)
+        docker build . -f docker/Dockerfile -t ${{ secrets.REGISTRY }}/message-api:$(echo $GITHUB_SHA | head -c7) --build-arg BASEIMAGE=message-api-base:$(echo $GITHUB_SHA | head -c7)
+
     - name: Install doctl
       uses: digitalocean/action-doctl@v2
       with:
@@ -21,10 +30,20 @@ jobs:
     - name: Log in to DigitalOcean Container Registry with short-lived credentials
       run: doctl registry login --expiry-seconds 600
 
-    - uses: actions/checkout@v3
-    - name: Build the Docker base image
-      run: |
-        docker build . --file docker/Dockerfile.base --tag registry.digitalocean.com/dwe/message-api-base:$(echo $GITHUB_SHA | head -c7)
-        docker push registry.digitalocean.com/dwe/message-api-base:$(echo $GITHUB_SHA | head -c7)
-        docker build . --file docker/Dockerfile --tag registry.digitalocean.com/dwe/message-api:$(echo $GITHUB_SHA | head -c7) --build-arg message-api-base:$(echo $GITHUB_SHA | head -c7)
-        docker push registry.digitalocean.com/dwe/message-api:$(echo $GITHUB_SHA | head -c7)
+    - name: Push image to DigitalOcean Container Registry
+      run: docker push ${{ secrets.REGISTRY }}/message-api:$(echo $GITHUB_SHA | head -c7)
+
+    - name: executing remote ssh commands using password
+      uses: appleboy/ssh-action@master
+      with:
+        host: ${{ secrets.DROPLET_HOST }}
+        username: ${{ secrets.DROPLET_USERNAME }}
+        password: ${{ secrets.DROPLET_PASSWORD }}
+        port: ${{ secrets.DROPLET_PORT }}
+        script: |
+          dotctl registry login
+          echo "JWT_SECRET_KEY=${{ secrets.JWT_SECRET_KEY }}" >> .env
+          echo "ADMIN_PASSWORD=${{ secrets.ADMIN_PASSWORD }}" >> .env
+          echo "IMAGE=\"${{ secrets.REGISTRY }}/message-api:$(echo $GITHUB_SHA | head -c7)\"" >> .env
+          docker-compose --env-file .env -f docker/message-api.yml up -d
+          rm .env
