@@ -15,23 +15,26 @@ jobs:
     steps:
 
     - name: Checkout main
-      uses: actions/checkout@v2
+      uses: actions/checkout@v3
 
     - name: Build container image
       run:  |
         docker build . -f docker/Dockerfile.base -t message-api-base:$(echo $GITHUB_SHA | head -c7)
         docker build . -f docker/Dockerfile -t ${{ secrets.REGISTRY }}/message-api:$(echo $GITHUB_SHA | head -c7) --build-arg BASEIMAGE=message-api-base:$(echo $GITHUB_SHA | head -c7)
 
-    - name: Install doctl
-      uses: digitalocean/action-doctl@v2
-      with:
-        token: ${{ secrets.DIGITALOCEAN_ACCESS_TOKEN }}
+#    - name: Install doctl
+#      uses: digitalocean/action-doctl@v2
+#      with:
+#        token: ${{ secrets.DIGITALOCEAN_ACCESS_TOKEN }}
 
-    - name: Log in to DigitalOcean Container Registry with short-lived credentials
-      run: doctl registry login --expiry-seconds 600
+#    - name: Log in to DigitalOcean Container Registry with short-lived credentials
+#      run: doctl registry login --expiry-seconds 600
 
-    - name: Push image to DigitalOcean Container Registry
-      run: docker push ${{ secrets.REGISTRY }}/message-api:$(echo $GITHUB_SHA | head -c7)
+
+    - name: Push image to Container Registry
+      run: |
+        docker login -u ${{ secrets.DOCKER_USER }} -p ${{ secrets.DOCKER_PASSWORD }}
+        docker push ${{ secrets.REGISTRY }}/message-api:$(echo $GITHUB_SHA | head -c7)
 
     - name: executing remote ssh commands using password
       uses: appleboy/ssh-action@master
