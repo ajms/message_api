@@ -44,8 +44,8 @@ jobs:
         password: ${{ secrets.DROPLET_PASSWORD }}
         port: ${{ secrets.DROPLET_PORT }}
         script: |
-          echo "JWT_SECRET_KEY=${{ secrets.JWT_SECRET_KEY }}" >> .env
-          echo "ADMIN_PASSWORD=${{ secrets.ADMIN_PASSWORD }}" >> .env
-          echo "IMAGE=\"albgoat/message-api:$(echo $GITHUB_SHA | head -c7)\"" >> .env
+          echo "JWT_SECRET_KEY=\"${{ secrets.JWT_SECRET_KEY }}\"" >> .env
+          echo "ADMIN_PASSWORD=\"${{ secrets.ADMIN_PASSWORD }}\"" >> .env
+          echo "IMAGE=albgoat/message-api:$(echo $GITHUB_SHA | head -c7)" >> .env
           docker-compose --env-file .env -f docker/message-api.yml up -d
           rm .env
