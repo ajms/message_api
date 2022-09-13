@@ -49,3 +49,4 @@ jobs:
           echo "ADMIN_PASSWORD=\"${{ secrets.ADMIN_PASSWORD }}\"" >> .env
           echo "IMAGE=\"albgoat/message-api:latest\"" >> .env
           docker-compose --env-file .env -f docker/message-api.yml up -d
+          rm .env
