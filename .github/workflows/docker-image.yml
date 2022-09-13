@@ -20,12 +20,13 @@ jobs:
     - name: Build container image
       run:  |
         docker build . -f docker/Dockerfile.base -t message-api-base:$(echo $GITHUB_SHA | head -c7)
-        docker build . -f docker/Dockerfile -t albgoat/message-api:$(echo $GITHUB_SHA | head -c7) --build-arg BASEIMAGE=message-api-base:$(echo $GITHUB_SHA | head -c7)
+        docker build . -f docker/Dockerfile -t albgoat/message-api:$(echo $GITHUB_SHA | head -c7) -t albgoat/message-api:latest --build-arg BASEIMAGE=message-api-base:$(echo $GITHUB_SHA | head -c7)
 
     - name: Push image to Container Registry
       run: |
         docker login -u ${{ secrets.DOCKER_USER }} -p ${{ secrets.DOCKER_PASSWORD }}
         docker push albgoat/message-api:$(echo $GITHUB_SHA | head -c7)
+        docker push albgoat/message-api:latest
 
     - name: Copy docker-compose file to remote
       uses: garygrossgarten/github-action-scp@release
@@ -46,6 +47,5 @@ jobs:
         script: |
           echo "JWT_SECRET_KEY=\"${{ secrets.JWT_SECRET_KEY }}\"" >> .env
           echo "ADMIN_PASSWORD=\"${{ secrets.ADMIN_PASSWORD }}\"" >> .env
-          echo "IMAGE=albgoat/message-api:$(echo $GITHUB_SHA | head -c7)" >> .env
+          echo "IMAGE=\"albgoat/message-api:latest\"" >> .env
           docker-compose --env-file .env -f docker/message-api.yml up -d
-          rm .env
