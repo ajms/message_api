@@ -1,8 +1,11 @@
+import io
 import json
 from datetime import datetime, timedelta
 
+import qrcode
 from fastapi import Depends, FastAPI, HTTPException, Query, status
 from fastapi.security import OAuth2PasswordRequestForm
+from starlette.responses import StreamingResponse
 
 from src.helpers import generate_secrets, get_redis, get_settings
 from src.model import Message, Messages, OneTimeSecrets, Token, TokenData
@@ -53,11 +56,16 @@ async def login_for_access_token(
     description="Get secrets for posting messages",
 )
 async def secrets(
-    num_secrets: int = Query(default=2), token_data=Depends(check_authentication_token)
+    num_secrets: int = Query(default=1), token_data=Depends(check_authentication_token)
 ) -> OneTimeSecrets:
     if token_data.user != "admin":
         raise HTTPException(401, "Not authorized to view this endpoint")
-    return OneTimeSecrets(secrets=generate_secrets(num_secrets))
+    secrets = OneTimeSecrets(secrets=generate_secrets(num_secrets))
+    img = qrcode.make(secrets.secrets[0])
+    buf = io.BytesIO()
+    img.save(buf)
+    buf.seek(0)
+    return StreamingResponse(buf, media_type="image/png")
 
 
 @app.post(

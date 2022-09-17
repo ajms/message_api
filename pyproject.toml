@@ -18,6 +18,11 @@ python-multipart = "^0.0.5"
 pydantic = {extras = ["dontenv"], version = "^1.10.1"}
 python-dotenv = "^0.21.0"
 pytest-asyncio = "^0.19.0"
+dash = "^2.6.1"
+qrcode = "^7.3.1"
+Pillow = "^9.2.0"
+Authlib = "^1.1.0"
+requests = "^2.28.1"
 
 [tool.poetry.group.dev.dependencies]
 flake8 = "^5.0.4"
