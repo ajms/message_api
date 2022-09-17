@@ -1,3 +1,4 @@
+import logging
 from functools import lru_cache
 from io import BytesIO
 
@@ -5,6 +6,8 @@ import requests
 from authlib.integrations.requests_client import OAuth2Auth, OAuth2Session
 from dash import Dash, Input, Output, dcc, html
 from PIL import Image
+
+from src.helpers import get_settings
 
 
 @lru_cache
@@ -18,22 +21,22 @@ def get_token(
         token_endpoint_auth_method="client_secret_basic",
         token_endpoint=token_endpoint,
     )
-    session.cert
+    logging.info(n_tokens)
     token = session.fetch_token(token_endpoint, username=username, password=password)
     auth = OAuth2Auth(token)
     return auth
 
 
-user = "admin"  # input("User: ")
-password = "dwe2022"  # input("Password: ")
-token_endpoint = "http://0.0.0.0:8000/token"
-
 app = Dash(name="Show codes for leaving messages")
 
 app.layout = html.Div(
     children=[
-        html.H3(children="Scan the barcode to leave a message on the projection"),
-        qr_code := html.Div(id="qr_code"),
+        html.H3(children="Scan the qr-code to leave a message"),
+        html.Div(
+            password := dcc.Input(id="admin_password", type="password"),
+            style={"display": "block"},
+        ),
+        html.Div(id="qr_code"),
         dcc.Interval(
             id="interval-component", interval=5000, n_intervals=0  # in milliseconds
         ),
@@ -43,12 +46,15 @@ app.layout = html.Div(
 
 @app.callback(
     Output(component_id="qr_code", component_property="children"),
+    Output(component_id="admin_password", component_property="style"),
+    Input("admin_password", "value"),
     Input("interval-component", "n_intervals"),
 )
-def refresh_barcode(n_intervals) -> html.Img:
+def refresh_barcode(password, n_intervals) -> html.Img:
+    cfg = get_settings()
     auth = get_token(
-        token_endpoint=token_endpoint,
-        username=user,
+        token_endpoint=cfg.TOKEN_ENDPOINT,
+        username="admin",
         password=password,
         n_tokens=n_intervals // 840,
     )
@@ -57,7 +63,7 @@ def refresh_barcode(n_intervals) -> html.Img:
         r.raw.decode_content = True
         qr = BytesIO(r.raw.data)
     img = Image.open(qr)
-    return html.Div(html.Img(src=img))
+    return html.Div(html.Img(src=img)), {"display": "none"}
 
 
 if __name__ == "__main__":
