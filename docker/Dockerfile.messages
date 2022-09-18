@@ -1,0 +1,8 @@
+ARG BASEIMAGE
+
+FROM ${BASEIMAGE}
+
+WORKDIR /app
+COPY . .
+
+CMD ["python", "src/frontends/messages_viewer.py"]

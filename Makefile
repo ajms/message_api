@@ -36,6 +36,7 @@ build-images:
 build-images:  ## Build images
 	docker build . -f docker/Dockerfile -t message-api:v0.1.0 --build-arg BASEIMAGE=message-api-base:v0.1.0
 	docker build . -f docker/Dockerfile.qr -t message-api-qr:v0.1.0 --build-arg BASEIMAGE=message-api-base:v0.1.0
+	docker build . -f docker/Dockerfile.messages -t message-api-messages:v0.1.0 --build-arg BASEIMAGE=message-api-base:v0.1.0
 
 docker-run:  ## Run docker-compose
 docker-run:

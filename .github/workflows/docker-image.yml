@@ -22,11 +22,17 @@ jobs:
         docker build . -f docker/Dockerfile.base -t message-api-base:$(echo $GITHUB_SHA | head -c7)
         docker build . -f docker/Dockerfile -t albgoat/message-api:$(echo $GITHUB_SHA | head -c7) -t albgoat/message-api:latest --build-arg BASEIMAGE=message-api-base:$(echo $GITHUB_SHA | head -c7)
         docker build . -f docker/Dockerfile.qr -t albgoat/message-api-qr:$(echo $GITHUB_SHA | head -c7) -t albgoat/message-api-qr:latest --build-arg BASEIMAGE=message-api-base:$(echo $GITHUB_SHA | head -c7)
+        docker build . -f docker/Dockerfile.messages -t albgoat/message-api-messages:$(echo $GITHUB_SHA | head -c7) -t albgoat/message-api-messages:latest --build-arg BASEIMAGE=message-api-base:$(echo $GITHUB_SHA | head -c7)
+
     - name: Push image to Container Registry
       run: |
         docker login -u ${{ secrets.DOCKER_USER }} -p ${{ secrets.DOCKER_PASSWORD }}
         docker push albgoat/message-api:$(echo $GITHUB_SHA | head -c7)
         docker push albgoat/message-api:latest
+        docker push albgoat/message-api-qr:$(echo $GITHUB_SHA | head -c7)
+        docker push albgoat/message-api-qr:latest
+        docker push albgoat/message-api-messages:$(echo $GITHUB_SHA | head -c7)
+        docker push albgoat/message-api-messages:latest
 
     - name: Copy docker-compose file to remote
       uses: garygrossgarten/github-action-scp@release
@@ -48,9 +54,11 @@ jobs:
           docker-compose -f docker/message-api.yml down
           docker image rm albgoat/message-api:latest
           docker image rm albgoat/message-api-qr:latest
+          docker image rm albgoat/message-api-messages:latest
           echo "JWT_SECRET_KEY=\"${{ secrets.JWT_SECRET_KEY }}\"" >> .env
           echo "ADMIN_PASSWORD=\"${{ secrets.ADMIN_PASSWORD }}\"" >> .env
           echo "IMAGE=\"albgoat/message-api:latest\"" >> .env
           echo "QR_IMAGE=\"albgoat/message-api-qr:latest\"" >> .env
+          echo "MESSAGES_IMAGE=\"albgoat/message-api-messages:latest\"" >> .env
           docker-compose --env-file .env -f docker/message-api.yml up -d
           rm .env

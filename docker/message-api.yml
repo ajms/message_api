@@ -20,6 +20,12 @@ services:
     environment:
       - TOKEN_ENDPOINT=http://api:8000/token
       - SECRETS_ENDPOINT=http://api:8000/secrets
+  messages:
+    image: $MESSAGES_IMAGE
+    ports:
+      - 8051:8051
+    environment:
+      - MESSAGES_ENDPOINT=http://api:8000/messages
 volumes:
   redis:
     driver: local
