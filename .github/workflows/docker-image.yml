@@ -46,6 +46,7 @@ jobs:
         port: ${{ secrets.DROPLET_PORT }}
         script: |
           docker-compose -f docker/message-api.yml down
+          docker image rm albgoat/message-api:latest
           echo "JWT_SECRET_KEY=\"${{ secrets.JWT_SECRET_KEY }}\"" >> .env
           echo "ADMIN_PASSWORD=\"${{ secrets.ADMIN_PASSWORD }}\"" >> .env
           echo "IMAGE=\"albgoat/message-api:latest\"" >> .env
