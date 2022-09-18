@@ -52,7 +52,6 @@ async def login_for_access_token(
 
 @app.get(
     "/secrets",
-    response_model=OneTimeSecrets,
     description="Get secrets for posting messages",
 )
 async def secrets(
@@ -61,11 +60,27 @@ async def secrets(
     if token_data.user != "admin":
         raise HTTPException(401, "Not authorized to view this endpoint")
     secrets = OneTimeSecrets(secrets=generate_secrets(num_secrets))
-    img = qrcode.make(secrets.secrets[0])
+    img = qrcode.make(
+        f"https://www.dwenteignen.de/nachrichten-wand?token={secrets.secrets[0]}"
+    )
     buf = io.BytesIO()
     img.save(buf)
     buf.seek(0)
     return StreamingResponse(buf, media_type="image/png")
+
+
+@app.get(
+    "/secrets_old",
+    response_model=OneTimeSecrets,
+    description="Get secrets for posting messages",
+)
+async def secrets_old(
+    num_secrets: int = Query(default=1), token_data=Depends(check_authentication_token)
+) -> OneTimeSecrets:
+    if token_data.user != "admin":
+        raise HTTPException(401, "Not authorized to view this endpoint")
+    secrets = OneTimeSecrets(secrets=generate_secrets(num_secrets))
+    return secrets
 
 
 @app.post(
