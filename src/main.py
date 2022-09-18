@@ -18,7 +18,7 @@ from src.security import (
 app = FastAPI(
     title="message-api",
     description="api for receiving and displaying messages",
-    openapi_prefix="/message-api",
+    root_path="/message-api",
 )
 
 
