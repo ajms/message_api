@@ -6,8 +6,17 @@ import requests
 from authlib.integrations.requests_client import OAuth2Auth, OAuth2Session
 from dash import Dash, Input, Output, dcc, html
 from PIL import Image
+from pydantic import BaseSettings
 
-from src.helpers import get_settings
+
+class Config(BaseSettings):
+    TOKEN_ENDPOINT: str = "http://0.0.0.0:8000/token"
+    SECRETS_ENDPOINT: str = "http://0.0.0.0:8000/secrets"
+
+
+@lru_cache
+def load_config():
+    return Config()
 
 
 @lru_cache
@@ -51,14 +60,14 @@ app.layout = html.Div(
     Input("interval-component", "n_intervals"),
 )
 def refresh_barcode(password, n_intervals) -> html.Img:
-    cfg = get_settings()
+    cfg = load_config()
     auth = get_token(
         token_endpoint=cfg.TOKEN_ENDPOINT,
         username="admin",
         password=password,
         n_tokens=n_intervals // 840,
     )
-    r = requests.get("http://0.0.0.0:8000/secrets", auth=auth, stream=True)
+    r = requests.get(cfg.SECRETS_ENDPOINT, auth=auth, stream=True)
     if r.status_code == 200:
         r.raw.decode_content = True
         qr = BytesIO(r.raw.data)
@@ -67,4 +76,4 @@ def refresh_barcode(password, n_intervals) -> html.Img:
 
 
 if __name__ == "__main__":
-    app.run_server(debug=False)
+    app.run(host="0.0.0.0", debug=False)

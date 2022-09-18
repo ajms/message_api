@@ -14,7 +14,6 @@ class Settings(BaseSettings):
     ALGORITHM = "HS256"
     ACCESS_TOKEN_EXPIRE_MINUTES = 30
     ADMIN_PASSWORD = ""
-    TOKEN_ENDPOINT = "http://0.0.0.0:8000/token"
 
     class Config:
         env_file = ".env"

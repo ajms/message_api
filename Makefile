@@ -28,15 +28,16 @@ requirements:
 	poetry export -f requirements.txt --output requirements.txt
 
 build-base-image:
-build-base-image:  ## Build base image with requirements
+build-base-image:  ## Build base image
 	requirements
-	docker build . -f docker/Dockerfile.base -t messagebase:v0.1.0
+	docker build . -f docker/Dockerfile.base -t message-api-base:v0.1.0
 
-build-message-api:  ## Build message-api docker
-build-message-api:
-	docker build . -f docker/Dockerfile -t message-api:v0.1.0 --build-arg messagebase:v0.1.0
+build-images:
+build-images:  ## Build images
+	docker build . -f docker/Dockerfile -t message-api:v0.1.0 --build-arg BASEIMAGE=message-api-base:v0.1.0
+	docker build . -f docker/Dockerfile.qr -t message-api-qr:v0.1.0 --build-arg BASEIMAGE=message-api-base:v0.1.0
 
 docker-run:  ## Run docker-compose
 docker-run:
-	docker-compose -f docker/redis.yml down
-	docker-compose -f docker/message-api.yml up -d
+	docker-compose --env-file .env.docker -f docker/message-api.yml down
+	docker-compose --env-file .env.docker -f docker/message-api.yml up -d

@@ -5,7 +5,7 @@ services:
     command: redis-server --save 20 1 --loglevel warning
     volumes:
       - redis:/data
-  message-api:
+  api:
     image: $IMAGE
     ports:
       - 8000:8000
@@ -13,6 +13,13 @@ services:
       - REDIS_HOST=redis
       - ADMIN_PASSWORD=$ADMIN_PASSWORD
       - JWT_SECRET_KEY=$JWT_SECRET_KEY
+  qr:
+    image: $QR_IMAGE
+    ports:
+      - 8050:8050
+    environment:
+      - TOKEN_ENDPOINT=http://api:8000/token
+      - SECRETS_ENDPOINT=http://api:8000/secrets
 volumes:
   redis:
     driver: local
