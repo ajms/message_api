@@ -67,4 +67,4 @@ def refresh_barcode(password, n_intervals) -> html.Img:
 
 
 if __name__ == "__main__":
-    app.run_server(debug=True)
+    app.run_server(debug=False)
