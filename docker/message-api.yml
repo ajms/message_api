@@ -9,6 +9,8 @@ services:
     image: $IMAGE
     ports:
       - 8000:8000
+    expose:
+      - "8000"
     environment:
       - REDIS_HOST=redis
       - ADMIN_PASSWORD=$ADMIN_PASSWORD
