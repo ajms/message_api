@@ -17,7 +17,7 @@ generate-admin-pw:
 
 docker-redis:  ## Run redis for development mode
 docker-redis:
-	docker-compose -f docker/redis.yml up -d
+	docker compose -f docker/redis.yml up -d
 
 run-api:  ## Run api
 run-api:
@@ -40,5 +40,5 @@ build-images:  ## Build images
 
 docker-run:  ## Run docker-compose
 docker-run:
-	docker-compose --env-file .env.docker -f docker/message-api.yml down
-	docker-compose --env-file .env.docker -f docker/message-api.yml up -d
+	docker compose --env-file .env.docker -f docker/message-api.yml down
+	docker compose --env-file .env.docker -f docker/message-api.yml up -d
