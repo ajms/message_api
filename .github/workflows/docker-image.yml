@@ -51,13 +51,7 @@ jobs:
         password: ${{ secrets.DROPLET_PASSWORD }}
         port: ${{ secrets.DROPLET_PORT }}
         script: |
-          rm .env
           docker image rm albgoat/message-api:latest
           docker image rm albgoat/message-api-qr:latest
           docker image rm albgoat/message-api-messages:latest
-          echo "JWT_SECRET_KEY=\"${{ secrets.JWT_SECRET_KEY }}\"" >> .env
-          echo "ADMIN_PASSWORD=\"${{ secrets.ADMIN_PASSWORD }}\"" >> .env
-          echo "IMAGE=\"albgoat/message-api:latest\"" >> .env
-          echo "QR_IMAGE=\"albgoat/message-api-qr:latest\"" >> .env
-          echo "MESSAGES_IMAGE=\"albgoat/message-api-messages:latest\"" >> .env
           docker compose --env-file .env -f docker/message-api.yml up -d
