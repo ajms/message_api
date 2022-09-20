@@ -25,11 +25,10 @@ run-api:
 
 requirements:  ## Create requirements for docker
 requirements:
-	poetry export -f requirements.txt --output requirements.txt
+	poetry export -f requirements.txt --without-hashes --output requirements.txt
 
 build-base-image:
 build-base-image:  ## Build base image
-	requirements
 	docker build . -f docker/Dockerfile.base -t message-api-base:v0.1.0
 
 build-images:

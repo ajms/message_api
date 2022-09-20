@@ -37,6 +37,7 @@ def get_token(
 
 
 app = Dash(name="Show codes for leaving messages")
+server = app.server
 
 app.layout = html.Div(
     children=[
@@ -76,4 +77,4 @@ def refresh_barcode(password, n_intervals) -> html.Img:
 
 
 if __name__ == "__main__":
-    app.run(host="0.0.0.0", debug=False)
+    app.run(host="0.0.0.0", port="8050", debug=False)

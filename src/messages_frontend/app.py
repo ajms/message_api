@@ -26,6 +26,7 @@ def load_config():
 
 
 app = Dash(name="Message stream")
+server = app.server
 
 app.layout = html.Div(
     children=[

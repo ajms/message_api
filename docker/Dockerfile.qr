@@ -5,4 +5,4 @@ FROM ${BASEIMAGE}
 WORKDIR /app
 COPY . .
 
-CMD ["python", "src/frontends/qr_frontend.py"]
+ENTRYPOINT ["gunicorn", "src.qr_frontend.app:server", "-b", ":8050"]

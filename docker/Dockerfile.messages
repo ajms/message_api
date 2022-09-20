@@ -5,4 +5,4 @@ FROM ${BASEIMAGE}
 WORKDIR /app
 COPY . .
 
-CMD ["python", "src/frontends/messages_viewer.py"]
+CMD ["gunicorn", "src.messages_frontend.app:server", "-b", ":8051"]
