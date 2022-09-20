@@ -51,6 +51,7 @@ jobs:
         password: ${{ secrets.DROPLET_PASSWORD }}
         port: ${{ secrets.DROPLET_PORT }}
         script: |
+          rm .env
           docker compose -f docker/message-api.yml down
           docker image rm albgoat/message-api:latest
           docker image rm albgoat/message-api-qr:latest
@@ -61,4 +62,3 @@ jobs:
           echo "QR_IMAGE=\"albgoat/message-api-qr:latest\"" >> .env
           echo "MESSAGES_IMAGE=\"albgoat/message-api-messages:latest\"" >> .env
           docker compose --env-file .env -f docker/message-api.yml up -d
-          rm .env

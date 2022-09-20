@@ -9,8 +9,8 @@ services:
     image: $IMAGE
     ports:
       - 8000:8000
-    expose:
-      - "8000"
+    links:
+      - redis
     environment:
       - REDIS_HOST=redis
       - ADMIN_PASSWORD=$ADMIN_PASSWORD
@@ -19,15 +19,19 @@ services:
     image: $QR_IMAGE
     ports:
       - 8050:8050
+    links:
+      - api
     environment:
-      - TOKEN_ENDPOINT=http://api:8000/token
-      - SECRETS_ENDPOINT=http://api:8000/secrets
+      - TOKEN_ENDPOINT=http://fastapi:8000/token
+      - SECRETS_ENDPOINT=http://fastapi:8000/secrets
   messages:
     image: $MESSAGES_IMAGE
     ports:
       - 8051:8051
+    links:
+      - api
     environment:
-      - MESSAGES_ENDPOINT=http://api:8000/messages
+      - MESSAGES_ENDPOINT=http://fastapi:8000/messages
 volumes:
   redis:
     driver: local
