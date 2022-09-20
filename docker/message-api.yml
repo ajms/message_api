@@ -22,8 +22,8 @@ services:
     links:
       - api
     environment:
-      - TOKEN_ENDPOINT=http://fastapi:8000/token
-      - SECRETS_ENDPOINT=http://fastapi:8000/secrets
+      - TOKEN_ENDPOINT=http://api:8000/token
+      - SECRETS_ENDPOINT=http://api:8000/secrets
   messages:
     image: $MESSAGES_IMAGE
     ports:
@@ -31,7 +31,7 @@ services:
     links:
       - api
     environment:
-      - MESSAGES_ENDPOINT=http://fastapi:8000/messages
+      - MESSAGES_ENDPOINT=http://api:8000/messages
 volumes:
   redis:
     driver: local
