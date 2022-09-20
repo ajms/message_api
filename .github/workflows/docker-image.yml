@@ -52,7 +52,6 @@ jobs:
         port: ${{ secrets.DROPLET_PORT }}
         script: |
           rm .env
-          docker compose -f docker/message-api.yml down
           docker image rm albgoat/message-api:latest
           docker image rm albgoat/message-api-qr:latest
           docker image rm albgoat/message-api-messages:latest
