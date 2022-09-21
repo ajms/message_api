@@ -1,6 +1,7 @@
 from datetime import datetime
 from functools import lru_cache
 
+import dash_bootstrap_components as dbc
 import requests
 from dash import Dash, Input, Output, dcc, html
 from pydantic import BaseModel, BaseSettings, Field
@@ -25,17 +26,25 @@ def load_config():
     return Config()
 
 
-app = Dash(name="Message stream")
+app = Dash(name="Message stream", external_stylesheets=[dbc.themes.CYBORG])
 server = app.server
 
-app.layout = html.Div(
+app.layout = dbc.Container(
+    id="main_content",
     children=[
-        html.H3(children="Messages"),
+        dbc.Row(
+            dbc.Col(
+                html.H3(children="The wall of comments for Faxen Dicke"),
+                width={"size": 9, "order": 2, "offset": 1},
+            )
+        ),
         html.Div(id="messages"),
         dcc.Interval(
             id="interval-component", interval=5000, n_intervals=0  # in milliseconds
         ),
     ],
+    fluid=True,
+    style={"padding": "5px 5px 5px 5px"},
 )
 
 
@@ -45,15 +54,31 @@ app.layout = html.Div(
 )
 def refresh_barcode(n_intervals) -> html.Img:
     cfg = load_config()
-    r = requests.get(cfg.MESSAGES_ENDPOINT)
+    r = requests.get(cfg.MESSAGES_ENDPOINT, params={"num_messages": 20})
     if r.status_code == 200:
 
         messages = Messages(**r.json())
-        print(messages)
-    return [
-        html.Div(f"{message.name}@ {message.timestamp}: {message.text}")
-        for message in messages.messages
-    ]
+    return html.Div(
+        children=[
+            dbc.Row(
+                children=[
+                    dbc.Col(
+                        html.H5(message.timestamp.strftime("%H:%M:%S")),
+                        width={"size": 1, "order": 2, "offset": 1},
+                    ),
+                    dbc.Col(
+                        html.H5(message.name),
+                        width={"size": 1, "order": 1, "offset": 1},
+                    ),
+                    dbc.Col(
+                        html.H5(message.text),
+                        width={"size": 7, "order": 3, "offset": 1},
+                    ),
+                ],
+            )
+            for message in messages.messages
+        ]
+    )
 
 
 if __name__ == "__main__":
