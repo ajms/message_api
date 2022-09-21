@@ -4,5 +4,6 @@ FROM ${BASEIMAGE}
 
 WORKDIR /app
 COPY . .
+EXPOSE 8051
 
-CMD ["gunicorn", "src.messages_frontend.app:server", "-b", ":8051"]
+CMD ["gunicorn", "src.messages_frontend.app:server", "-b", "0.0.0.0:8050"]

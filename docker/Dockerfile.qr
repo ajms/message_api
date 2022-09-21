@@ -4,5 +4,6 @@ FROM ${BASEIMAGE}
 
 WORKDIR /app
 COPY . .
+EXPOSE 8050
 
-ENTRYPOINT ["gunicorn", "src.qr_frontend.app:server", "-b", ":8050"]
+ENTRYPOINT ["gunicorn", "src.qr_frontend.app:server", "-b", "0.0.0.0:8050"]

@@ -25,7 +25,7 @@ def load_config():
     return Config()
 
 
-app = Dash(name="Message stream", url_base_pathname="/messages/")
+app = Dash(name="Message stream")
 server = app.server
 
 app.layout = html.Div(
