@@ -119,4 +119,8 @@ async def messages(
     for key in r.scan_iter("message_*"):
         message = json.loads(r.get(key))
         messages.append(Message(**message))
-    return Messages(messages=messages[-num_messages:])
+    return Messages(
+        messages=sorted(messages, key=lambda x: x.timestamp, reverse=True)[
+            :num_messages
+        ]
+    )

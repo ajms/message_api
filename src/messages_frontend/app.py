@@ -77,7 +77,7 @@ def refresh_barcode(n_intervals) -> html.Img:
                 ],
             )
             for message in messages.messages
-        ]
+        ],
     )
 
 
