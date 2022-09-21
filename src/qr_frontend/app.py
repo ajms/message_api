@@ -47,6 +47,7 @@ app.layout = html.Div(
             style={"display": "block"},
         ),
         html.Div(id="qr_code"),
+        html.Div(html.H4(id="url")),
         dcc.Interval(
             id="interval-component", interval=5000, n_intervals=0  # in milliseconds
         ),
@@ -56,6 +57,7 @@ app.layout = html.Div(
 
 @app.callback(
     Output(component_id="qr_code", component_property="children"),
+    Output(component_id="url", component_property="children"),
     Output(component_id="admin_password", component_property="style"),
     Input("admin_password", "value"),
     Input("interval-component", "n_intervals"),
@@ -73,7 +75,10 @@ def refresh_barcode(password, n_intervals) -> html.Img:
         r.raw.decode_content = True
         qr = BytesIO(r.raw.data)
     img = Image.open(qr)
-    return html.Div(html.Img(src=img)), {"display": "none"}
+    r = requests.get(f"{cfg.SECRETS_ENDPOINT}_old", auth=auth)
+    if r.status_code == 200:
+        url = r.json()["secrets"][0]
+    return html.Div(html.Img(src=img)), url, {"display": "none"}
 
 
 if __name__ == "__main__":

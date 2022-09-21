@@ -1,6 +1,6 @@
 import re
 from functools import lru_cache
-from uuid import UUID, uuid4
+from uuid import uuid4
 
 from pydantic import BaseSettings
 from redis import Redis
@@ -42,11 +42,11 @@ def generate_secrets(num: int):
         used_flag = r.get(key)
         if used_flag != b"0":
             continue
-        m = re.match(r"token_([a-z-0-9]{36})", key.decode("utf-8"))
+        m = re.match(r"token_([a-z-0-9]{6})", key.decode("utf-8"))
         assert m is not None, f"{key.decode('utf-8')=}"
-        valid_secrets.append(UUID(m.group(1)))
+        valid_secrets.append(m.group(1))
     for i in range(num - len(valid_secrets), 0, -1):
-        token = uuid4()
+        token = str(uuid4())[-6:]
         r.set(f"token_{token}", 0)
         valid_secrets.append(token)
     return valid_secrets[:num]

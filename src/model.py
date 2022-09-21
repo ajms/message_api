@@ -1,11 +1,10 @@
 from datetime import datetime
-from uuid import UUID
 
 from pydantic import BaseModel, Field
 
 
 class OneTimeSecrets(BaseModel):
-    secrets: list[UUID]
+    secrets: list[str]
 
 
 class Message(BaseModel):

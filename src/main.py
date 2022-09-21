@@ -2,6 +2,7 @@ import io
 import json
 from datetime import datetime, timedelta
 
+import pytz
 import qrcode
 from fastapi import Depends, FastAPI, HTTPException, Query, status
 from fastapi.security import OAuth2PasswordRequestForm
@@ -79,7 +80,12 @@ async def secrets_old(
 ) -> OneTimeSecrets:
     if token_data.user != "admin":
         raise HTTPException(401, "Not authorized to view this endpoint")
-    secrets = OneTimeSecrets(secrets=generate_secrets(num_secrets))
+    secrets = OneTimeSecrets(
+        secrets=[
+            f"https://www.dwenteignen.de/nachrichten-wand?token={secret}"
+            for secret in generate_secrets(num_secrets)
+        ]
+    )
     return secrets
 
 
@@ -100,7 +106,13 @@ async def message(
     elif used_flag == b"2":
         raise HTTPException(401, "Token is already used")
     else:
-        message = Message(text=body.text, name=body.name, timestamp=datetime.now())
+        message = Message(
+            text=body.text,
+            name=body.name,
+            timestamp=datetime.now(
+                tz=pytz.timezone("Europe/Berlin"),
+            ),
+        )
         r.set(f"message_{body.name}_{body.timestamp}", message.json())
         r.set(f"token_{token_data.user}", 2)
     return body
