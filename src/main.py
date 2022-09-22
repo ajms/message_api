@@ -73,7 +73,7 @@ async def secrets(
         raise HTTPException(401, "Not authorized to view this endpoint")
     secrets = OneTimeSecrets(secrets=generate_secrets(num_secrets))
     img = qrcode.make(
-        f"https://www.dwenteignen.de/nachrichten-wand?token={secrets.secrets[0]}"
+        f"https://www.dwenteignen.de/nachrichten-wand?code={secrets.secrets[0]}"
     )
     buf = io.BytesIO()
     img.save(buf)
@@ -93,7 +93,7 @@ async def secrets_old(
         raise HTTPException(401, "Not authorized to view this endpoint")
     secrets = OneTimeSecrets(
         secrets=[
-            f"https://www.dwenteignen.de/nachrichten-wand?token={secret}"
+            f"https://www.dwenteignen.de/nachrichten-wand?code={secret}"
             for secret in generate_secrets(num_secrets)
         ]
     )
