@@ -5,6 +5,7 @@ from datetime import datetime, timedelta
 import pytz
 import qrcode
 from fastapi import Depends, FastAPI, HTTPException, Query, status
+from fastapi.middleware.cors import CORSMiddleware
 from fastapi.security import OAuth2PasswordRequestForm
 from starlette.responses import StreamingResponse
 
@@ -21,11 +22,21 @@ app = FastAPI(
     description="api for receiving and displaying messages",
 )
 
+origins = ["*"]
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=origins,
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
 
 @app.get("/")
 async def root():
     return {
-        "message": "call /docs or /redoc to show the openapi definition",
+        "message": "Hello :)",
     }
 
 
