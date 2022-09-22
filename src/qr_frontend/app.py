@@ -73,14 +73,16 @@ def refresh_barcode(password, n_intervals) -> html.Img:
         password=password,
         n_tokens=n_intervals // 840,
     )
+    
     r = requests.get(cfg.SECRETS_ENDPOINT, auth=auth, stream=True)
     if r.status_code == 200:
         r.raw.decode_content = True
         qr = BytesIO(r.raw.data)
         img = Image.open(qr)
-    r = requests.get(f"{cfg.SECRETS_ENDPOINT}_old", auth=auth)
     else:
         return html.Div(), "", {"display": "block"}
+    
+    r = requests.get(f"{cfg.SECRETS_ENDPOINT}_old", auth=auth)
     if r.status_code == 200:
         url = r.json()["secrets"][0]
     else:
