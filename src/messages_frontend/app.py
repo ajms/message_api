@@ -60,29 +60,28 @@ def refresh_barcode(n_intervals) -> html.Img:
     cfg = load_config()
     r = requests.get(cfg.MESSAGES_ENDPOINT, params={"num_messages": 20})
     if r.status_code == 200:
-
         messages = Messages(**r.json())
-    return html.Div(
-        children=[
-            dbc.Row(
-                children=[
-                    dbc.Col(
-                        html.H5(message.timestamp.strftime("%H:%M:%S")),
-                        width={"size": 1, "order": 2, "offset": 1},
-                    ),
-                    dbc.Col(
-                        html.H5(message.name),
-                        width={"size": 1, "order": 1, "offset": 1},
-                    ),
-                    dbc.Col(
-                        html.H5(message.text),
-                        width={"size": 7, "order": 3, "offset": 1},
-                    ),
-                ],
-            )
-            for message in messages.messages
-        ],
-    )
+        return html.Div(
+            children=[
+                dbc.Row(
+                    children=[
+                        dbc.Col(
+                            html.H5(message.timestamp.strftime("%H:%M:%S")),
+                            width={"size": 1, "order": 2, "offset": 1},
+                        ),
+                        dbc.Col(
+                            html.H5(message.name),
+                            width={"size": 1, "order": 1, "offset": 1},
+                        ),
+                        dbc.Col(
+                            html.H5(message.text),
+                            width={"size": 7, "order": 3, "offset": 1},
+                        ),
+                    ],
+                )
+                for message in messages.messages
+            ],
+        )
 
 
 if __name__ == "__main__":

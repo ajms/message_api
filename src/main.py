@@ -124,7 +124,7 @@ async def message(
                 tz=pytz.timezone("Europe/Berlin"),
             ),
         )
-        r.set(f"message_{body.name}_{body.timestamp}", message.json())
+        r.set(f"message_{message.name}_{message.timestamp}", message.json())
         r.set(f"token_{token_data.user}", 2)
     return body
 

@@ -36,7 +36,10 @@ def get_token(
     return auth
 
 
-app = Dash(name="Show codes for leaving messages")
+app = Dash(
+    name="Show codes for leaving messages",
+    url_base_pathname="/qr/",
+)
 server = app.server
 
 app.layout = html.Div(
