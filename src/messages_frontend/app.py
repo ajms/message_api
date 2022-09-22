@@ -26,7 +26,11 @@ def load_config():
     return Config()
 
 
-app = Dash(name="Message stream", external_stylesheets=[dbc.themes.CYBORG])
+app = Dash(
+    name="Message stream",
+    external_stylesheets=[dbc.themes.CYBORG],
+    url_base_pathname="/projection-messages/",
+)
 server = app.server
 
 app.layout = dbc.Container(
