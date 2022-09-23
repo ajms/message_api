@@ -40,7 +40,7 @@ app.layout = dbc.Container(
         dbc.Row(
             dbc.Col(
                 html.H3(children="Mietenschmutztwitter"),
-                width={"size": 9, "order": 2, "offset": 1},
+                width={"size": 8, "order": 2, "offset": 1},
             )
         ),
         html.Div(id="messages"),
@@ -80,6 +80,7 @@ def refresh_barcode(n_intervals) -> html.Img:
                             width={"size": 8, "order": 3, "offset": 1},
                         ),
                     ],
+                    style={"padding-bottom": "20px"},
                 )
                 for message in messages.messages
             ],
