@@ -3,12 +3,17 @@ from functools import lru_cache
 from io import BytesIO
 
 import requests
+from authlib.integrations.base_client.errors import UnsupportedTokenTypeError
 from authlib.integrations.requests_client import OAuth2Auth, OAuth2Session
 from dash import Dash, Input, Output, dcc, html
 from PIL import Image
 from pydantic import BaseSettings
 
-logging.basicConfig(encoding="utf-8", level=logging.INFO)
+logging.basicConfig(
+    encoding="utf-8",
+    format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
+    level=logging.INFO,
+)
 
 
 class Config(BaseSettings):
@@ -60,14 +65,7 @@ app.layout = html.Div(
 )
 
 
-@app.callback(
-    Output(component_id="qr_code", component_property="children"),
-    Output(component_id="url", component_property="children"),
-    Output(component_id="admin_password", component_property="style"),
-    Input("admin_password", "value"),
-    Input("interval-component", "n_intervals"),
-)
-def refresh_barcode(password, n_intervals) -> html.Img:
+def get_barcode(password, n_intervals):
     cfg = load_config()
     auth = get_token(
         token_endpoint=cfg.TOKEN_ENDPOINT,
@@ -90,6 +88,22 @@ def refresh_barcode(password, n_intervals) -> html.Img:
     else:
         return html.Div(), "", {"display": "block"}
     return html.Div(html.Img(src=img)), url, {"display": "none"}
+
+
+@app.callback(
+    Output(component_id="qr_code", component_property="children"),
+    Output(component_id="url", component_property="children"),
+    Output(component_id="admin_password", component_property="style"),
+    Input("admin_password", "value"),
+    Input("interval-component", "n_intervals"),
+)
+def refresh_barcode(password, n_intervals) -> html.Img:
+    try:
+        return get_barcode(password=password, n_intervals=n_intervals)
+    except UnsupportedTokenTypeError:
+        logging.info("UnsupportedTokenTypeError")
+        get_token.cache_clear()
+        return get_barcode(password=password, n_intervals=n_intervals)
 
 
 if __name__ == "__main__":
