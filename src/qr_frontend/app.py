@@ -73,7 +73,7 @@ def refresh_barcode(password, n_intervals) -> html.Img:
         token_endpoint=cfg.TOKEN_ENDPOINT,
         username="admin",
         password=password,
-        n_tokens=n_intervals // 50,
+        n_tokens=n_intervals // 180,
     )
 
     r = requests.get(cfg.SECRETS_ENDPOINT, auth=auth, stream=True)
