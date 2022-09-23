@@ -1,0 +1,23 @@
+@font-face {
+    font-family: 'dweRegular';
+    src: url(SuisseIntl-Regular.otf) format(otf);
+}
+
+@font-face {
+    font-family: 'dweBold';
+    src: url(SuisseIntl-Bold.otf) format(otf);
+}
+
+body {
+    background-color: #801c62;
+    font-family: 'dweRegular';
+}
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+    color: #fdd816
+}

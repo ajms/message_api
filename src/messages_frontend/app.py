@@ -8,6 +8,7 @@ from pydantic import BaseModel, BaseSettings, Field
 
 
 class Message(BaseModel):
+    id: int | None = None
     text: str = Field(example="This is a good day.")
     name: str | None = None
     timestamp: datetime | None = None
@@ -38,7 +39,7 @@ app.layout = dbc.Container(
     children=[
         dbc.Row(
             dbc.Col(
-                html.H3(children="The wall of comments for Faxen Dicke"),
+                html.H3(children="Mietenschmutztwitter"),
                 width={"size": 9, "order": 2, "offset": 1},
             )
         ),
@@ -66,16 +67,17 @@ def refresh_barcode(n_intervals) -> html.Img:
                 dbc.Row(
                     children=[
                         dbc.Col(
-                            html.H5(message.timestamp.strftime("%H:%M:%S")),
+                            children=[
+                                html.H6(
+                                    f"# {message.id} @ {message.timestamp.strftime('%H:%M:%S')}"
+                                ),
+                                html.H5(message.name),
+                            ],
                             width={"size": 1, "order": 2, "offset": 1},
                         ),
                         dbc.Col(
-                            html.H5(message.name),
-                            width={"size": 1, "order": 1, "offset": 1},
-                        ),
-                        dbc.Col(
-                            html.H5(message.text),
-                            width={"size": 7, "order": 3, "offset": 1},
+                            html.H6(message.text),
+                            width={"size": 8, "order": 3, "offset": 1},
                         ),
                     ],
                 )

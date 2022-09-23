@@ -12,7 +12,7 @@ class Settings(BaseSettings):
     ACCESS_TOKEN: str = ""
     JWT_SECRET_KEY = ""
     ALGORITHM = "HS256"
-    ACCESS_TOKEN_EXPIRE_MINUTES = 14400
+    ACCESS_TOKEN_EXPIRE_MINUTES = 15
     ADMIN_PASSWORD = ""
 
     class Config:

@@ -4,6 +4,7 @@ from datetime import datetime, timedelta
 
 import pytz
 import qrcode
+import redis
 from fastapi import Depends, FastAPI, HTTPException, Query, status
 from fastapi.security import OAuth2PasswordRequestForm
 from starlette.responses import StreamingResponse
@@ -99,23 +100,43 @@ async def message(
     token_data: TokenData = Depends(check_authentication_token),
     r=Depends(get_redis),
 ) -> Message:
-    r = get_redis()
     used_flag = r.get(f"token_{token_data.user}")
     if used_flag is None:
         raise HTTPException(401, "Invalid token")
     elif used_flag == b"2":
         raise HTTPException(401, "Token is already used")
     else:
+        if id := r.get("id") is None:
+            r.set("id", 0)
+        r.set("id", (id := int(r.get("id"))) + 1)
         message = Message(
+            id=id,
             text=body.text,
             name=body.name,
             timestamp=datetime.now(
                 tz=pytz.timezone("Europe/Berlin"),
             ),
         )
-        r.set(f"message_{message.name}_{message.timestamp}", message.json())
+        r.set(f"message_{id}_{message.name}", message.json())
         r.set(f"token_{token_data.user}", 2)
-    return body
+    return message
+
+
+@app.delete("/message", response_model=Message, description="Delete message by id")
+async def message_delete(
+    id: int = Query("message id"),
+    token_data: TokenData = Depends(check_authentication_token),
+    r: redis.Redis = Depends(get_redis),
+) -> Message:
+    message_keys = list(r.scan_iter(f"message_{id}_*"))
+    if message_keys != []:
+        for key in message_keys:
+            message = json.loads(r.get(key))
+            r.delete(key)
+            r.set(f"deleted_{key}", json.dumps(message))
+        return message
+    else:
+        raise HTTPException(404, "Message not found")
 
 
 @app.get(

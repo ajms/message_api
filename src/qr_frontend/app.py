@@ -8,6 +8,8 @@ from dash import Dash, Input, Output, dcc, html
 from PIL import Image
 from pydantic import BaseSettings
 
+logging.basicConfig(encoding="utf-8", level=logging.INFO)
+
 
 class Config(BaseSettings):
     TOKEN_ENDPOINT: str = "http://0.0.0.0:8000/token"
@@ -30,7 +32,7 @@ def get_token(
         token_endpoint_auth_method="client_secret_basic",
         token_endpoint=token_endpoint,
     )
-    logging.info(n_tokens)
+    logging.info(f"{n_tokens=}")
     token = session.fetch_token(token_endpoint, username=username, password=password)
     auth = OAuth2Auth(token)
     return auth
@@ -71,7 +73,7 @@ def refresh_barcode(password, n_intervals) -> html.Img:
         token_endpoint=cfg.TOKEN_ENDPOINT,
         username="admin",
         password=password,
-        n_tokens=n_intervals // 300,
+        n_tokens=n_intervals // 50,
     )
 
     r = requests.get(cfg.SECRETS_ENDPOINT, auth=auth, stream=True)

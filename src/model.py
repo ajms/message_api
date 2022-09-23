@@ -8,6 +8,7 @@ class OneTimeSecrets(BaseModel):
 
 
 class Message(BaseModel):
+    id: int | None = None
     text: str = Field(example="This is a good day.")
     name: str | None = None
     timestamp: datetime | None = None
