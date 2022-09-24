@@ -68,16 +68,14 @@ def refresh_barcode(n_intervals) -> html.Img:
                     children=[
                         dbc.Col(
                             children=[
-                                html.H6(
-                                    f"# {message.id} @ {message.timestamp.strftime('%H:%M:%S')}"
-                                ),
+                                f"# {message.id} @ {message.timestamp.strftime('%H:%M:%S')}",
                                 html.H5(message.name),
                             ],
-                            width={"size": 1, "order": 2, "offset": 1},
+                            width={"size": 2, "order": 1, "offset": 1},
                         ),
                         dbc.Col(
                             html.H6(message.text),
-                            width={"size": 8, "order": 3, "offset": 1},
+                            width={"size": 7, "order": 1, "offset": 0},
                         ),
                     ],
                     style={"padding-bottom": "20px"},

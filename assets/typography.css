@@ -1,16 +1,18 @@
 @font-face {
     font-family: 'dweRegular';
-    src: url(SuisseIntl-Regular.otf) format(otf);
+    src: url("SuisseIntl-Regular.otf");
 }
 
 @font-face {
     font-family: 'dweBold';
-    src: url(SuisseIntl-Bold.otf) format(otf);
+    src: url("SuisseIntl-Bold.otf");
 }
 
 body {
     background-color: #801c62;
     font-family: 'dweRegular';
+    color: #fdd816;
+    font-size: 0.75rem;
 }
 
 h1,
@@ -20,4 +22,20 @@ h4,
 h5,
 h6 {
     color: #fdd816
+}
+
+
+h3 {
+    font-family: 'dweBold';
+}
+
+
+h5 {
+    font-family: 'dweBold';
+    font-size: 1rem;
+}
+
+h6 {
+    font-family: 'dweRegular';
+    font-size: 1rem;
 }
