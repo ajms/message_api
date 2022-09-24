@@ -24,7 +24,7 @@ def authenticate_user(user: str, password: str | None = None) -> SimpleUser | bo
     if user != "admin":
         r = get_redis()
         used_flag = r.get(f"token_{user}")
-        if not used_flag or used_flag == b"1" or used_flag == b"2":
+        if not used_flag or used_flag == b"2":
             return False
         return SimpleUser(user=user, disabled=used_flag)
     else:
