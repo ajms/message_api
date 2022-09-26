@@ -26,12 +26,20 @@ async def test_login_for_access_token_success(cfg, r):
 
 
 @pytest.mark.asyncio
-async def test_login_for_access_token_failed(cfg, r):
+@pytest.mark.parametrize(
+    "text, name",
+    [("test message", "test name")],
+)
+async def test_login_for_access_token_failed(text: str, name: str, cfg, r):
+    msg_in = Message(text=text, name=name)
     secret = str(generate_secrets(1)[0])
-    _ = await authorize(cfg, r)
+    token = await authorize(cfg, r)
+    token_data = await check_authentication_token(token=token["access_token"])
+    _ = await message(body=msg_in, token_data=token_data, r=r)
     with pytest.raises(HTTPException):
         _ = await authorize(cfg, r, secret)
     r.delete(f"token_{secret}")
+    r.delete(f"message_{secret}")
 
 
 @pytest.mark.asyncio

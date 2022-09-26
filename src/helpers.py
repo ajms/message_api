@@ -62,7 +62,6 @@ def delete_keys():
 if __name__ == "__main__":
     delete_keys()
     r = get_redis()
-    print(generate_secrets(10))
 
     for key in r.scan_iter("*"):
         print(f"{key}, {r.get(key)}")

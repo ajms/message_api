@@ -17,7 +17,7 @@ def test_authenticate_user_success(r):
     r.delete(f"token_{secret}")
 
 
-@pytest.mark.parametrize("used_flag", [1, 2])
+@pytest.mark.parametrize("used_flag", [2])
 def test_authenticate_user_failed(used_flag, r):
     secret = str(generate_secrets(1)[0])
     r.set(f"token_{secret}", used_flag)
