@@ -1,6 +1,7 @@
 # custom
 .cert
 .env.docker
+etc/nginx/ssl
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
