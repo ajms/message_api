@@ -57,14 +57,14 @@ async def login_for_access_token(
     description="Get secrets for posting messages",
 )
 async def secrets(
-    num_secrets: int = Query(default=1), token_data=Depends(check_authentication_token)
+    num_secrets: int = Query(default=1),
+    token_data=Depends(check_authentication_token),
+    cfg=Depends(get_settings),
 ) -> OneTimeSecrets:
     if token_data.user != "admin":
         raise HTTPException(401, "Not authorized to view this endpoint")
     secrets = OneTimeSecrets(secrets=generate_secrets(num_secrets))
-    img = qrcode.make(
-        f"https://www.dwenteignen.de/nachrichten-wand?code={secrets.secrets[0]}"
-    )
+    img = qrcode.make(f"{cfg.URL_MESSAGE_FORM}{secrets.secrets[0]}")
     buf = io.BytesIO()
     img.save(buf)
     buf.seek(0)
@@ -77,13 +77,15 @@ async def secrets(
     description="Get secrets for posting messages",
 )
 async def secrets_old(
-    num_secrets: int = Query(default=1), token_data=Depends(check_authentication_token)
+    num_secrets: int = Query(default=1),
+    token_data=Depends(check_authentication_token),
+    cfg=Depends(get_settings),
 ) -> OneTimeSecrets:
     if token_data.user != "admin":
         raise HTTPException(401, "Not authorized to view this endpoint")
     secrets = OneTimeSecrets(
         secrets=[
-            f"https://www.dwenteignen.de/nachrichten-wand?code={secret}"
+            f"{cfg.URL_MESSAGE_FORM}{secret}"
             for secret in generate_secrets(num_secrets)
         ]
     )

@@ -14,6 +14,7 @@ class Settings(BaseSettings):
     ALGORITHM = "HS256"
     ACCESS_TOKEN_EXPIRE_MINUTES = 15
     ADMIN_PASSWORD = ""
+    URL_MESSAGE_FORM = ""
 
     class Config:
         env_file = ".env"
