@@ -48,8 +48,8 @@ async def login_for_access_token(
         data={"sub": user.user}, expires_delta=access_token_expires
     )
     if form_data.username != "admin":
-        r.set(f"token_{form_data.username}", 1)
-    return {"access_token": access_token, "token_type": "bearer"}
+        r.set(f"secret_{form_data.username}", "qr scanned")
+    return {"access_token": access_token, "secret_type": "bearer"}
 
 
 @app.get(
@@ -102,10 +102,10 @@ async def message(
     token_data: TokenData = Depends(check_authentication_token),
     r=Depends(get_redis),
 ) -> Message:
-    used_flag = r.get(f"token_{token_data.user}")
+    used_flag = r.get(f"secret_{token_data.user}")
     if used_flag is None:
         raise HTTPException(401, "Invalid token")
-    elif used_flag == b"2":
+    elif used_flag == b"message posted":
         raise HTTPException(401, "Token is already used")
     else:
         if id := r.get("id") is None:
@@ -120,7 +120,7 @@ async def message(
             ),
         )
         r.set(f"message_{id}_{message.name}", message.json())
-        r.set(f"token_{token_data.user}", 2)
+        r.set(f"secret_{token_data.user}", "message posted")
     return message
 
 
