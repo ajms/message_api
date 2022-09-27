@@ -22,7 +22,7 @@ async def test_login_for_access_token_success(cfg, r):
     secret = str(generate_secrets(1)[0])
     token = await authorize(cfg, r, secret)
     assert "access_token" in token
-    r.delete(f"token_{secret}")
+    r.delete(f"secret_{secret}")
 
 
 @pytest.mark.asyncio
@@ -38,7 +38,7 @@ async def test_login_for_access_token_failed(text: str, name: str, cfg, r):
     _ = await message(body=msg_in, token_data=token_data, r=r)
     with pytest.raises(HTTPException):
         _ = await authorize(cfg, r, secret)
-    r.delete(f"token_{secret}")
+    r.delete(f"secret_{secret}")
     r.delete(f"message_{secret}")
 
 
@@ -55,7 +55,7 @@ async def test_message(text: str, name: str, cfg, r):
     msg = await message(body=msg_in, token_data=token_data, r=r)
     assert msg.name == msg_in.name
     assert msg.text == msg_in.text
-    r.delete(f"token_{secret}")
+    r.delete(f"secret_{secret}")
     r.delete(f"message_{secret}")
 
 
