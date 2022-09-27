@@ -41,7 +41,7 @@ def generate_secrets(num: int):
     valid_secrets = []
     for key in r.scan_iter("secret_*"):
         used_flag = r.get(key)
-        if used_flag != b"0":
+        if used_flag != b"unused secret":
             continue
         m = re.match(r"secret_([a-z-0-9]{6})", key.decode("utf-8"))
         assert m is not None, f"{key.decode('utf-8')=}"
