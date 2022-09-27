@@ -15,6 +15,7 @@ services:
       - REDIS_HOST=redis
       - ADMIN_PASSWORD=$ADMIN_PASSWORD
       - JWT_SECRET_KEY=$JWT_SECRET_KEY
+      - URL_MESSAGE_FORM=$URL_MESSAGE_FORM
   qr:
     image: $QR_IMAGE
     ports:
