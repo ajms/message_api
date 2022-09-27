@@ -14,15 +14,15 @@ from src.security import (
 def test_authenticate_user_success(r):
     secret = str(generate_secrets(1)[0])
     assert isinstance(authenticate_user(secret), SimpleUser)
-    r.delete(f"token_{secret}")
+    r.delete(f"secret_{secret}")
 
 
-@pytest.mark.parametrize("used_flag", [2])
+@pytest.mark.parametrize("used_flag", ["authenticated", "message posted"])
 def test_authenticate_user_failed(used_flag, r):
     secret = str(generate_secrets(1)[0])
-    r.set(f"token_{secret}", used_flag)
+    r.set(f"secret_{secret}", used_flag)
     assert not authenticate_user(secret)
-    r.delete(f"token_{secret}")
+    r.delete(f"secret_{secret}")
 
 
 def test_authenticate_user_admin():
