@@ -48,7 +48,10 @@ async def login_for_access_token(
         data={"sub": user.user}, expires_delta=access_token_expires
     )
     if form_data.username != "admin":
-        r.set(f"secret_{form_data.username}", "qr scanned")
+        if used_flag == b"qr scanned":
+            r.set(f"secret_{user}", "authenticated")
+        else:
+            r.set(f"secret_{form_data.username}", "qr scanned")
     return {"access_token": access_token, "token_type": "bearer"}
 
 
