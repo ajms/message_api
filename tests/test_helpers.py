@@ -19,7 +19,6 @@ def test_generate_secrets_number():
     for key in r.scan_iter("secret_*"):
         value = r.get(key)
         if value == b"unused secret":
-            existing_secrets.append(key[6:].decode("utf-8"))
+            existing_secrets.append(key[7:].decode("utf-8"))
     secrets = generate_secrets(10)
-    assert len(set(existing_secrets).intersection(
-        secrets)) == len(existing_secrets)
+    assert len(set(existing_secrets).intersection(secrets)) == len(existing_secrets)
