@@ -28,8 +28,6 @@ def authenticate_user(user: str, password: str | None = None) -> SimpleUser | bo
         # for the second call of the authentication link.
         if not used_flag or used_flag == b"message posted" or used_flag == b"authenticated":
             return False
-        elif used_flag == b"qr scanned":
-            r.set(f"secret_{user}", "authenticated")
         return SimpleUser(user=user, disabled=used_flag)
     else:
         cfg = get_settings()
