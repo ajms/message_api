@@ -39,16 +39,16 @@ def get_redis():
 def generate_secrets(num: int):
     r = get_redis()
     valid_secrets = []
-    for key in r.scan_iter("token_*"):
+    for key in r.scan_iter("secret_*"):
         used_flag = r.get(key)
-        if used_flag != b"0":
+        if used_flag != b"unused secret":
             continue
-        m = re.match(r"token_([a-z-0-9]{6})", key.decode("utf-8"))
+        m = re.match(r"secret_([a-z-0-9]{6})", key.decode("utf-8"))
         assert m is not None, f"{key.decode('utf-8')=}"
         valid_secrets.append(m.group(1))
     for i in range(num - len(valid_secrets), 0, -1):
         token = str(uuid4())[-6:]
-        r.set(f"token_{token}", 0)
+        r.set(f"secret_{token}", "unused secret")
         valid_secrets.append(token)
     return valid_secrets[:num]
 

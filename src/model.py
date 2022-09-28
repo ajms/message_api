@@ -29,7 +29,7 @@ class TokenData(BaseModel):
 
 class SimpleUser(BaseModel):
     user: str
-    disabled: bool | None = None
+    disabled: str | None = None
 
 
 class User(SimpleUser):
