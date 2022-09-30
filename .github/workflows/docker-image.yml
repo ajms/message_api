@@ -11,9 +11,7 @@ jobs:
   build:
 
     runs-on: ubuntu-latest
-
     steps:
-
     - name: Checkout main
       uses: actions/checkout@v3
 
@@ -34,28 +32,28 @@ jobs:
         docker push albgoat/message-api-messages:$(echo $GITHUB_SHA | head -c7)
         docker push albgoat/message-api-messages:latest
 
-    - name: Copy docker-compose file to remote
-      uses: garygrossgarten/github-action-scp@release
-      with:
-        local: docker/message-api.yml
-        remote: docker/message-api.yml
-        host: ${{ secrets.DROPLET_HOST }}
-        username: ${{ secrets.DROPLET_USERNAME }}
-        password: ${{ secrets.DROPLET_PASSWORD }}
+    # - name: Copy docker-compose file to remote
+    #   uses: garygrossgarten/github-action-scp@release
+    #   with:
+    #     local: docker/message-api.yml
+    #     remote: docker/message-api.yml
+    #     host: ${{ secrets.DROPLET_HOST }}
+    #     username: ${{ secrets.DROPLET_USERNAME }}
+    #     password: ${{ secrets.DROPLET_PASSWORD }}
 
-    - name: executing remote ssh commands to start service
-      uses: appleboy/ssh-action@master
-      with:
-        host: ${{ secrets.DROPLET_HOST }}
-        username: ${{ secrets.DROPLET_USERNAME }}
-        password: ${{ secrets.DROPLET_PASSWORD }}
-        port: ${{ secrets.DROPLET_PORT }}
-        script: |
-          rm .env
-          echo "JWT_SECRET_KEY=\"${{ secrets.JWT_SECRET_KEY }}\"" >> .env
-          echo "ADMIN_PASSWORD=\"${{ secrets.ADMIN_PASSWORD }}\"" >> .env
-          echo "IMAGE=\"albgoat/message-api:$(echo ${{ github.sha }} | head -c7)\"" >> .env
-          echo "QR_IMAGE=\"albgoat/message-api-qr:$(echo ${{ github.sha }} | head -c7)\"" >> .env
-          echo "MESSAGES_IMAGE=\"albgoat/message-api-messages:$(echo ${{ github.sha }} | head -c7)\"" >> .env
-          echo "URL_MESSAGE_FORM=\"https://www.dwenteignen.de/nachrichten-wand?code=\"" >> .env
-          docker compose --env-file .env -f docker/message-api.yml up -d
+    # - name: executing remote ssh commands to start service
+    #   uses: appleboy/ssh-action@master
+    #   with:
+    #     host: ${{ secrets.DROPLET_HOST }}
+    #     username: ${{ secrets.DROPLET_USERNAME }}
+    #     password: ${{ secrets.DROPLET_PASSWORD }}
+    #     port: ${{ secrets.DROPLET_PORT }}
+    #     script: |
+    #       rm .env
+    #       echo "JWT_SECRET_KEY=\"${{ secrets.JWT_SECRET_KEY }}\"" >> .env
+    #       echo "ADMIN_PASSWORD=\"${{ secrets.ADMIN_PASSWORD }}\"" >> .env
+    #       echo "IMAGE=\"albgoat/message-api:$(echo ${{ github.sha }} | head -c7)\"" >> .env
+    #       echo "QR_IMAGE=\"albgoat/message-api-qr:$(echo ${{ github.sha }} | head -c7)\"" >> .env
+    #       echo "MESSAGES_IMAGE=\"albgoat/message-api-messages:$(echo ${{ github.sha }} | head -c7)\"" >> .env
+    #       echo "URL_MESSAGE_FORM=\"https://www.dwenteignen.de/nachrichten-wand?code=\"" >> .env
+    #       docker compose --env-file .env -f docker/message-api.yml up -d

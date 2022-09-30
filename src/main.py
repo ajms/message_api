@@ -54,7 +54,7 @@ async def login_for_access_token(
     "/secrets",
     description="Get secrets for posting messages",
 )
-async def secrets(
+async def get_secrets(
     num_secrets: int = Query(default=1),
     token_data=Depends(check_authentication_token),
     cfg=Depends(get_settings),
@@ -70,11 +70,11 @@ async def secrets(
 
 
 @app.get(
-    "/secrets_old",
+    "/secrets_text",
     response_model=OneTimeSecrets,
     description="Get secrets for posting messages",
 )
-async def secrets_old(
+async def get_secrets_text(
     num_secrets: int = Query(default=1),
     token_data=Depends(check_authentication_token),
     cfg=Depends(get_settings),
@@ -95,7 +95,7 @@ async def secrets_old(
     response_model=Message,
     description="Post message with valid token",
 )
-async def message(
+async def post_message(
     body: Message,
     token_data: TokenData = Depends(check_authentication_token),
     r=Depends(get_redis),
@@ -108,7 +108,7 @@ async def message(
     else:
         if id := r.get("id") is None:
             r.set("id", 0)
-        r.set("id", (id := int(r.get("id"))) + 1)
+        r.set("id", id := (int(r.get("id")) + 1))
         message = Message(
             id=id,
             text=body.text,
@@ -117,13 +117,13 @@ async def message(
                 tz=pytz.timezone("Europe/Berlin"),
             ),
         )
-        r.set(f"message_{id}_{message.name}", message.json())
+        r.set(f"message_{id}", message.json())
         r.set(f"secret_{token_data.user}", "message posted")
     return message
 
 
 @app.delete("/message", response_model=Message, description="Delete message by id")
-async def message_delete(
+async def delete_message(
     id: int = Query("message id"),
     token_data: TokenData = Depends(check_authentication_token),
     r: redis.Redis = Depends(get_redis),
@@ -144,14 +144,24 @@ async def message_delete(
     response_model=Messages,
     description="Show latest messages",
 )
-async def messages(
+async def get_messages(
     num_messages: int = Query(default=10, title="Number of messages"),
     r=Depends(get_redis),
 ) -> Messages:
     messages = []
-    for key in r.scan_iter("message_*"):
-        message = json.loads(r.get(key))
-        messages.append(Message(**message))
+    last_message_id = r.get("id")
+    if not last_message_id:
+        last_message_id = b"0"
+
+    i = int(last_message_id)
+    while i > 0 and num_messages >= 0:
+        value = r.get(f"message_{i}")
+        if value:
+            msg = json.loads(value)
+            messages.append(Message(**msg))
+            num_messages -= 1
+        i -= 1
+
     return Messages(
         messages=sorted(messages, key=lambda x: x.timestamp, reverse=True)[
             :num_messages
