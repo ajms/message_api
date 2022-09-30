@@ -2,7 +2,7 @@
 
 ## Unterseite und Form
 
-- Das Form ist bereits angelegt mithilfe des `WPForms`-Plugin und zu finden unter `WPForms > Nachrichten-Wand-Formular`. Die Felder `Code` und `Token` sind versteckt und nehmen automatische ihre Werte aus den entsprechenden URL-Parametern auf. (z.B. `{query_var key="code"}`).
+- Das Form ist bereits angelegt mithilfe des `WPForms`-Plugin und zu finden unter `WPForms > Nachrichten-Wand-Formular`. Die Felder `Code` und `Token` sind versteckt und nehmen automatische ihre Werte aus den entsprechenden URL-Parametern auf. (z.B. `{query_var key="code"}`). Die Email-Benachrichtigung für abgesendete Daten wurde für dieses Form bewusst deaktiviert, weil die Daten ja stattdessen an die API gesendet werden. Trotzdem lassen sich alle Daten im `WPForms`-Plugin einsehen.
 
 - Die Unterseite existiert auch bereits und ist in Wordpress unter `Seiten > Mietenschmutztwitter` zu finden. Sie bindet das Nachrichten-Wand-Formular ein.
 
