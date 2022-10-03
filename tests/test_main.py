@@ -19,10 +19,10 @@ async def authorize(cfg, r, secret: str | None = None):
 
 @pytest.mark.asyncio
 async def test_login_for_access_token_success(cfg, r):
-    secret = str(generate_secrets(1)[0])
+    secret = generate_secrets(1)[0]
     token = await authorize(cfg, r, secret)
     assert "access_token" in token
-    r.delete(f"secret_{secret}")
+    r.hdel("secret", secret)
 
 
 @pytest.mark.asyncio
@@ -38,8 +38,8 @@ async def test_login_for_access_token_failed(text: str, name: str, cfg, r):
     msg_out = await post_message(body=msg_in, token_data=token_data, r=r)
     with pytest.raises(HTTPException):
         _ = await authorize(cfg, r, secret)
-    r.delete(f"secret_{secret}")
-    r.delete(f"message_{msg_out.id}")
+    r.hdel("secret", secret)
+    r.hdel("message", msg_out.id)
 
 
 @pytest.mark.asyncio
@@ -55,13 +55,13 @@ async def test_message(text: str, name: str, cfg, r):
     msg_out = await post_message(body=msg_in, token_data=token_data, r=r)
     assert msg_out.name == msg_in.name
     assert msg_out.text == msg_in.text
-    r.delete(f"secret_{secret}")
-    r.delete(f"message_{msg_out.id}")
+    r.hdel("secret", secret)
+    r.hdel("message", msg_out.id)
 
 
 @pytest.mark.asyncio
 @pytest.mark.parametrize("num", [10, 2, 5])
 async def test_messages(num, r):
-    num_messages = len(list(r.scan_iter("message_*")))
+    num_messages = len(list(r.hscan_iter("message", "*")))
     msgs = await get_messages(num, r)
     assert len(msgs.messages) == min(num, num_messages)

@@ -23,7 +23,7 @@ def get_password_hash(password) -> str:
 def authenticate_user(user: str, password: str | None = None) -> SimpleUser | bool:
     if user != "admin":
         r = get_redis()
-        used_flag = r.get(f"secret_{user}")
+        used_flag = r.hget("secret", user)
         # many qr scanners query urls to make a preview, hence we introduce an "authenticated" flag
         # for the second call of the authentication link.
         if (
@@ -33,9 +33,9 @@ def authenticate_user(user: str, password: str | None = None) -> SimpleUser | bo
         ):
             return False
         if used_flag == b"qr scanned":
-            r.set(f"secret_{user}", "authenticated")
+            r.hset("secret", user, "authenticated")
         else:
-            r.set(f"secret_{user}", "qr scanned")
+            r.hset("secret", user, "qr scanned")
         return SimpleUser(user=user, disabled=used_flag)
     else:
         cfg = get_settings()

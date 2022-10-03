@@ -100,25 +100,34 @@ async def post_message(
     token_data: TokenData = Depends(check_authentication_token),
     r=Depends(get_redis),
 ) -> Message:
-    used_flag = r.get(f"secret_{token_data.user}")
+    used_flag = r.hget("secret", token_data.user)
     if used_flag is None:
         raise HTTPException(401, "Invalid token")
     elif used_flag == b"message posted":
         raise HTTPException(401, "Token is already used")
     else:
-        if id := r.get("id") is None:
-            r.set("id", 0)
-        r.set("id", id := (int(r.get("id")) + 1))
-        message = Message(
-            id=id,
-            text=body.text,
-            name=body.name,
-            timestamp=datetime.now(
-                tz=pytz.timezone("Europe/Berlin"),
-            ),
-        )
-        r.set(f"message_{id}", message.json())
-        r.set(f"secret_{token_data.user}", "message posted")
+        try:
+            pipeline = r.pipeline()
+            pipeline.watch("id")
+            id = pipeline.get("id")
+            if not id:
+                r.set("id", 0)
+                id = 0
+            message = Message(
+                id=int(id),
+                text=body.text,
+                name=body.name,
+                timestamp=datetime.now(
+                    tz=pytz.timezone("Europe/Berlin"),
+                ),
+            )
+            pipeline.hset(name="message", key=int(id), value=message.json())
+            pipeline.hset(name="secret", key=token_data.user, value="message posted")
+            pipeline.unwatch()
+            pipeline.incr("id")
+            pipeline.execute()
+        except redis.WatchError:
+            return HTTPException(409, "An occurrency error occurred, please try again.")
     return message
 
 
@@ -131,9 +140,9 @@ async def delete_message(
     message_keys = list(r.scan_iter(f"message_{id}_*"))
     if message_keys != []:
         for key in message_keys:
-            message = json.loads(r.get(key))
-            r.delete(key)
-            r.set(f"deleted_{key}", json.dumps(message))
+            message = json.loads(r.hget("message", key))
+            r.hdel("message", key)
+            r.hset("deleted_message", key, json.dumps(message))
         return message
     else:
         raise HTTPException(404, "Message not found")
@@ -155,7 +164,7 @@ async def get_messages(
 
     i = int(last_message_id)
     while i > 0 and num_messages >= 0:
-        value = r.get(f"message_{i}")
+        value = r.hget("message", i)
         if value:
             msg = json.loads(value)
             messages.append(Message(**msg))
