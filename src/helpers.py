@@ -1,4 +1,3 @@
-import re
 from functools import lru_cache
 from uuid import uuid4
 
@@ -39,17 +38,17 @@ def get_redis():
 def generate_secrets(num: int):
     r = get_redis()
     valid_secrets = []
-    for key in r.scan_iter("secret_*"):
-        used_flag = r.get(key)
+    for key, used_flag in r.hscan_iter("secret", "*"):
         if used_flag != b"unused secret":
             continue
-        m = re.match(r"secret_([a-z-0-9]{6})", key.decode("utf-8"))
-        assert m is not None, f"{key.decode('utf-8')=}"
-        valid_secrets.append(m.group(1))
-    for i in range(num - len(valid_secrets), 0, -1):
-        token = str(uuid4())[-6:]
-        r.set(f"secret_{token}", "unused secret")
-        valid_secrets.append(token)
+        valid_secrets.append(key.decode("utf-8"))
+    if num - len(valid_secrets) > 0:
+        new_keys = {
+            str(uuid4())[-6:]: "unused secret"
+            for _ in range(num - len(valid_secrets), 0, -1)
+        }
+        r.hset("secret", mapping=new_keys)
+        valid_secrets += list(new_keys.keys())
     return valid_secrets[:num]
 
 
@@ -60,8 +59,9 @@ def delete_keys():
 
 
 if __name__ == "__main__":
-    delete_keys()
+    # delete_keys()
     r = get_redis()
-
-    for key in r.scan_iter("*"):
-        print(f"{key}, {r.get(key)}")
+    for key, used_flag in r.hscan_iter("secret", "*"):
+        print(f"{key}, {used_flag}")
+    for key, used_flag in r.hscan_iter("message", "*"):
+        print(f"{key}, {used_flag}")
