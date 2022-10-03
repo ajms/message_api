@@ -64,3 +64,5 @@ if __name__ == "__main__":
     print(generate_secrets(1))
     for key, used_flag in r.hscan_iter("secret", "*"):
         print(f"{key}, {used_flag}")
+    for key, used_flag in r.hscan_iter("message", "*"):
+        print(f"{key}, {used_flag}")
