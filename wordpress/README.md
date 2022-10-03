@@ -22,7 +22,7 @@ Der Code besteht aus zwei Funktionen, die an einen entsprechenden Hook von Wordp
 
 - Die Funktion `redirectCodeToToken` hängt am Hook `template_redirect` der bei jedem Wordpress-Seitenaufruf ausgelöst wird und eine Weiterleitung ermöglicht. Darum muss streng gefiltert werden, dass nur bei der entsprechenden Seite eine Weiterleitung stattfindet. Die Funktion nimmt sich den Access-Code aus dem URL-Parameter `code`, holt damit ein Token von der API  ab und ergänzt das Token in einer Weiterleitung als URL--Parameter `token`.
 
-- Die Funktion `sendingDataToAPI`hängt am Hook `wpforms_process`, der ausgelöst wird, wenn ein beliebiges Formular abgesendet wird. Darum muss streng geprüft werden dass es sich um das korrekte Formulat handelt, anhand der Formular-ID. Die Funktion sendet die eingegebenen Daten, inklusive des automatisch vorbelegten Tokens an die API um eine Nachricht an die Nachrichten-Wand abzusetzen.  
+- Die Funktion `sendingDataToAPI`hängt am Hook `wpforms_process`, der ausgelöst wird, wenn ein beliebiges Formular abgesendet wird. Darum muss streng geprüft werden dass es sich um das korrekte Formulat handelt, anhand der Formular-ID. Die Funktion sendet die eingegebenen Daten, inklusive des automatisch vorbelegten Tokens an die API um eine Nachricht an die Nachrichten-Wand abzusetzen.
 
 ## Der Code
 
@@ -40,7 +40,7 @@ function redirectCodeToToken() {
 			$code = $url_parameters['code'];
 
 			// Hole das Token
-			$base_url = 'http://144.126.245.62:8000'; // https://dwenteignen.party
+			$base_url = 'enter base url'; // url
 			$token_url = "$base_url/token";
 			$body = "username=$code&password=$code";
 			$headers = array(
@@ -48,7 +48,7 @@ function redirectCodeToToken() {
 			);
 
 			$token_response = wp_remote_post( $token_url, array( 'body' => $body, 'headers' => $headers ) );
-		
+
 			// Fehlerbehandlung
 			if($token_response['response']['code'] == 401) {
 				exit( wp_redirect( "/nachrichten-wand-ungueltig" ) );
@@ -56,10 +56,10 @@ function redirectCodeToToken() {
 			if($token_response['response']['code'] != 200) {
 				exit( wp_redirect( "/nachrichten-wand-fehler" ) );
 			}
-		
+
 			// Token extrahieren
 			$token = json_decode($token_response['body'], true)['access_token'];
-	
+
 			exit( wp_redirect( "$url_path&token=$token" ) );
 		}
 	}
@@ -79,9 +79,9 @@ function sendingDataToAPI( $fields, $entry, $form_data) {
 
 	// Nur bei dem entsprechenden Form, identifiziert über die ID
 	if ($form_data['id'] == 5446) {
-		
-		$base_url = 'http://144.126.245.62:8000'; // https://dwenteignen.party
-		
+
+		$base_url = 'enter base url'; // url
+
 		$name = $entry['fields']['4'];
 		$text = $entry['fields']['1'];
 		$code = $entry['fields']['8'];
@@ -98,7 +98,7 @@ function sendingDataToAPI( $fields, $entry, $form_data) {
 			'Content-Type'			=> 'application/json',
 		);
 		$message_response = wp_remote_post( $message_url, array( 'body' => $body, 'headers' => $headers ) );
-		
+
 		// Fehlerbehandlung Message-Request
 		if($message_response['response']['code'] != 200) {
 			$error = $message_response['response']['message'];
@@ -116,5 +116,3 @@ function sendingDataToAPI( $fields, $entry, $form_data) {
 ```php
 add_action( 'wpforms_process', 'sendingDataToAPI', 10, 3 );
 ```
-
-
